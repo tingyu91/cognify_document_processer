@@ -710,12 +710,21 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      position: relative;
       margin-top: 44px;
       padding-top: 32px;
       border-top: 1px solid var(--border);
     }
 
-    .step-of { font-size: 13px; color: var(--secondary-text); font-family: 'IBM Plex Mono', monospace; }
+    .step-of {
+      font-size: 13px;
+      color: var(--secondary-text);
+      font-family: 'IBM Plex Mono', monospace;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
 
     /* ── SUCCESS ── */
     .success-wrap {
@@ -866,6 +875,15 @@
       .steps-inner { overflow-x: auto; padding-bottom: 2px; }
       .step-label-text { display: none; }
       .progress-track { max-width: 100%; }
+      .ripple-btn { padding: 0 14px; font-size: 13px; }
+      .form-footer { flex-wrap: wrap; row-gap: 16px; }
+      .step-of {
+        position: static;
+        transform: none;
+        order: -1;
+        width: 100%;
+        text-align: center;
+      }
     }
 
     /* ── RIPPLE BUTTON ── */
@@ -1043,7 +1061,7 @@
 
       <div class="form-footer">
         <span class="step-of">01 / 04</span>
-        <button class="ripple-btn" onclick="goTo(2)">
+        <button class="ripple-btn" style="margin-left:auto;" onclick="goTo(2)">
           <span class="rip-inner">Continue</span>
         </button>
       </div>
@@ -1135,12 +1153,10 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           Back
         </button>
-        <div style="display:flex; align-items:center; gap:10px;">
-          <span class="step-of">02 / 04</span>
-          <button class="ripple-btn" onclick="goTo(3)">
-            <span class="rip-inner">Continue</span>
-          </button>
-        </div>
+        <span class="step-of">02 / 04</span>
+        <button class="ripple-btn" onclick="goTo(3)">
+          <span class="rip-inner">Continue</span>
+        </button>
       </div>
     </div>
   </div>
@@ -1230,12 +1246,10 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           Back
         </button>
-        <div style="display:flex; align-items:center; gap:10px;">
-          <span class="step-of">03 / 04</span>
-          <button class="ripple-btn" onclick="goTo(4)">
-            <span class="rip-inner">Confirm &amp; Submit</span>
-          </button>
-        </div>
+        <span class="step-of">03 / 04</span>
+        <button class="ripple-btn" onclick="goTo(4)">
+          <span class="rip-inner">Confirm &amp; Submit</span>
+        </button>
       </div>
     </div>
   </div>
