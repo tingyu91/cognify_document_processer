@@ -478,6 +478,17 @@
 
     .field textarea { height: auto; padding: 14px; resize: none; }
 
+    .field input[type="date"] {
+      -webkit-appearance: none;
+      appearance: none;
+      max-width: 100%;
+      min-width: 0;
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     .field input::placeholder,
     .field textarea::placeholder { color: #C0C0C0; }
 
