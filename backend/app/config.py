@@ -39,7 +39,7 @@ class Settings(BaseSettings):
 
     # App
     environment: str = "development"
-    allowed_origins: list[str] = ["http://localhost:3000"]
+    allowed_origins: list[str] = ["https://cognify-document-processer.pages.dev", "http://localhost:3000"]
 
 
 settings = Settings()

@@ -1247,7 +1247,7 @@
           Back
         </button>
         <span class="step-of">03 / 04</span>
-        <button class="ripple-btn" onclick="goTo(4)">
+        <button class="ripple-btn" id="submitBtn" onclick="submitApp()">
           <span class="rip-inner">Confirm &amp; Submit</span>
         </button>
       </div>
@@ -1317,7 +1317,6 @@
 
   function goTo(step) {
     if (step === 3) fillReview();
-    if (step === 4) submitApp();
 
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('is-active'));
     document.getElementById('panel-' + step).classList.add('is-active');
@@ -1396,9 +1395,66 @@
     document.getElementById('rv-address').textContent = [addr, city, postal].filter(Boolean).join(', ') || '—';
   }
 
-  function submitApp() {
-    const ref = Math.floor(10000 + Math.random() * 90000);
-    document.getElementById('refNum').textContent = new Date().getFullYear() + '-' + ref;
+  const BACKEND_URL = 'https://cognifydocumentprocesser-production.up.railway.app';
+
+  async function submitApp() {
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.querySelector('.rip-inner').textContent = 'Submitting…';
+
+    const selectedDocEl = document.querySelector('.doc-type.is-selected .doc-type-name');
+    const payload = {
+      first_name:    document.getElementById('f-firstname').value.trim(),
+      last_name:     document.getElementById('f-lastname').value.trim(),
+      email:         document.getElementById('f-email').value.trim(),
+      phone:         document.getElementById('f-phone').value.trim(),
+      nationality:   document.getElementById('f-nationality').value,
+      gender:        document.getElementById('f-gender').value,
+      document_type: selectedDocEl ? selectedDocEl.textContent.trim() : 'National ID',
+      id_number:     document.getElementById('f-idnum').value.trim(),
+      date_of_birth: document.getElementById('f-dob').value,
+      address:       document.getElementById('f-address').value.trim(),
+      city:          document.getElementById('f-city').value.trim(),
+      postal_code:   document.getElementById('f-postal').value.trim(),
+      consent_given: true,
+    };
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/v1/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert('Submission failed: ' + (err.detail || res.statusText));
+        btn.disabled = false;
+        btn.querySelector('.rip-inner').textContent = 'Confirm & Submit';
+        return;
+      }
+
+      const data = await res.json();
+      const ref = data.reference_number;
+      document.getElementById('refNum').textContent = ref;
+
+      const fileInput = document.getElementById('fileInput');
+      if (fileInput.files.length > 0) {
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        await fetch(`${BACKEND_URL}/api/v1/upload/${ref}`, {
+          method: 'POST',
+          body: formData,
+        }).catch(() => {});
+      }
+
+      goTo(4);
+    } catch (err) {
+      alert('Network error — please check your connection and try again.');
+      console.error(err);
+      btn.disabled = false;
+      btn.querySelector('.rip-inner').textContent = 'Confirm & Submit';
+    }
   }
 
   function reset() {
