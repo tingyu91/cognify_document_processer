@@ -1,3 +1,14 @@
-node_modules/
-temporary screenshots/
+# Frontend
+frontend/node_modules/
+frontend/temporary screenshots/
+
+# Backend
+backend/.venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/**/*.pyc
+
+# Environment & secrets
 .claude/
+.env
+.env.*
