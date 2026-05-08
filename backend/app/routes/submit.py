@@ -85,10 +85,13 @@ async def submit_kyc(payload: SubmitRequest, request: Request, db: AsyncSession 
     db.add(log)
     await db.commit()
 
-    send_submission_confirmation(
-        to=payload.email,
-        reference_number=ref,
-        full_name=f"{payload.first_name} {payload.last_name}",
-    )
+    try:
+        send_submission_confirmation(
+            to=payload.email,
+            reference_number=ref,
+            full_name=f"{payload.first_name} {payload.last_name}",
+        )
+    except Exception:
+        pass
 
     return SubmitResponse(reference_number=ref, message="Submission received. You will be notified by email.")
