@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, Integer, Text, func
+from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, Integer, Text, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -83,6 +83,42 @@ class Document(Base):
     )
 
     submission: Mapped["Submission"] = relationship(back_populates="documents")
+    info: Mapped["DocumentInfo | None"] = relationship(back_populates="document", uselist=False, cascade="all, delete-orphan")
+
+
+class DocumentInfo(Base):
+    __tablename__ = "documents_info"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    document_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("documents.id", ondelete="CASCADE"), nullable=False, unique=True
+    )
+    submission_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("submissions.id", ondelete="CASCADE"), nullable=False
+    )
+
+    # Extracted OCR fields — all nullable (not every doc has every field)
+    full_name: Mapped[str | None] = mapped_column(Text, nullable=True)
+    first_name: Mapped[str | None] = mapped_column(Text, nullable=True)
+    last_name: Mapped[str | None] = mapped_column(Text, nullable=True)
+    alias: Mapped[str | None] = mapped_column(Text, nullable=True)
+    document_number: Mapped[str | None] = mapped_column(Text, nullable=True)
+    date_of_issue: Mapped[str | None] = mapped_column(Text, nullable=True)
+    date_of_expiry: Mapped[str | None] = mapped_column(Text, nullable=True)
+    date_of_birth: Mapped[str | None] = mapped_column(Text, nullable=True)
+    nationality: Mapped[str | None] = mapped_column(Text, nullable=True)
+    full_address: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    raw_extraction: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    extraction_failed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    user_approved: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    approved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+
+    document: Mapped["Document"] = relationship(back_populates="info")
 
 
 class AuditLog(Base):

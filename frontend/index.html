@@ -929,6 +929,175 @@
     }
     .rip-circle.is-open   { transform: translate(-50%, -50%) scale(1); }
     .rip-circle.is-closed { transform: translate(-50%, -50%) scale(0); }
+
+    /* ── OCR FIELD CARDS ── */
+    .ocr-doc-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .ocr-doc-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ocr-doc-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+
+    .ocr-doc-body { padding: 20px; }
+
+    .ocr-section-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--secondary-text);
+      margin-bottom: 12px;
+      margin-top: 20px;
+    }
+    .ocr-section-label:first-child { margin-top: 0; }
+
+    .ocr-fields-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .ocr-fields-grid.single { grid-template-columns: 1fr; }
+
+    .ocr-field {
+      background: #FAFAF8;
+      border: 1px solid #E8E6E1;
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+
+    .ocr-field-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #9B9690;
+      margin-bottom: 5px;
+    }
+
+    .ocr-field-value {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .ocr-empty-card {
+      border: 1px solid #F5D0A9;
+      border-radius: 12px;
+      background: #FFFBF5;
+      padding: 28px 24px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .ocr-empty-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+
+    .ocr-empty-desc {
+      font-size: 13px;
+      color: var(--secondary-text);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .ocr-empty-tips {
+      text-align: left;
+      font-size: 12px;
+      color: var(--secondary-text);
+      margin: 12px auto 16px;
+      max-width: 320px;
+    }
+    .ocr-empty-tips li { margin-bottom: 4px; list-style: disc; margin-left: 16px; }
+
+    /* ── SKELETON SHIMMER ── */
+    .skeleton {
+      background: linear-gradient(90deg, #F0F0F0 25%, #E0E0E0 50%, #F0F0F0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 6px;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .skeleton-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .skeleton-header { height: 46px; margin: 0; border-radius: 0; }
+    .skeleton-body { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .skeleton-field { height: 62px; }
+
+    /* ── FILE LIST ── */
+    .file-list { margin-top: 16px; }
+    .file-list-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+    .file-list-thumb {
+      width: 48px;
+      height: 48px;
+      border-radius: 6px;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: var(--border);
+    }
+    .file-list-meta { flex: 1; min-width: 0; }
+    .file-list-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-list-size { font-size: 11px; color: var(--secondary-text); margin-top: 2px; }
+    .file-list-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: rgba(212, 245, 66, 0.2);
+      color: #4d6200;
+      flex-shrink: 0;
+    }
+    .file-list-rm {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--secondary-text);
+      padding: 4px;
+      flex-shrink: 0;
+    }
+    .file-list-rm:hover { color: var(--status-red); }
   </style>
 </head>
 <body>
@@ -953,15 +1122,19 @@
     </div>
     <div class="step-item" id="si-2">
       <div class="step-num" id="sn-2">2</div>
-      <span class="step-label-text">Document Upload</span>
+      <span class="step-label-text">Upload Document</span>
     </div>
     <div class="step-item" id="si-3">
       <div class="step-num" id="sn-3">3</div>
-      <span class="step-label-text">Review Data</span>
+      <span class="step-label-text">Verify Document</span>
     </div>
     <div class="step-item" id="si-4">
       <div class="step-num" id="sn-4">4</div>
-      <span class="step-label-text">Confirm</span>
+      <span class="step-label-text">Review</span>
+    </div>
+    <div class="step-item" id="si-5">
+      <div class="step-num" id="sn-5">5</div>
+      <span class="step-label-text">Done</span>
     </div>
   </div>
 </div>
@@ -1060,7 +1233,7 @@
       </div>
 
       <div class="form-footer">
-        <span class="step-of">01 / 04</span>
+        <span class="step-of">01 / 05</span>
         <button class="ripple-btn" style="margin-left:auto;" onclick="goTo(2)">
           <span class="rip-inner">Continue</span>
         </button>
@@ -1107,7 +1280,7 @@
 
       <p class="section-label">Upload Document Image</p>
       <div class="upload-zone" id="uploadZone">
-        <input type="file" accept="image/*,.pdf" id="fileInput" onchange="onFileChange(this)">
+        <input type="file" accept="image/*" id="fileInput" onchange="onFileChange(this)">
         <div class="upload-icon-wrap">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="1.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.4 16.8A5 5 0 0 0 18 7h-1.3A8 8 0 1 0 4 15.3"/></svg>
         </div>
@@ -1116,24 +1289,18 @@
         <div class="upload-tags">
           <span class="tag">JPG</span>
           <span class="tag">PNG</span>
-          <span class="tag">PDF</span>
           <span class="tag">Max 10 MB</span>
         </div>
       </div>
 
-      <div class="file-preview" id="filePreview">
-        <img id="fileThumb" class="file-thumb" src="" alt="Document preview">
-        <div class="file-meta">
-          <div class="file-name-text" id="fileName">document.jpg</div>
-          <div class="file-size-text" id="fileSize">—</div>
-          <div class="file-ok">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-            Ready for processing
-          </div>
-        </div>
-        <button class="file-rm" onclick="clearFile()" title="Remove">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      <div id="fileList" class="file-list" style="display:none;"></div>
+
+      <div id="addMoreWrap" style="display:none; margin-top:12px;">
+        <button class="btn btn-outline-ink" style="font-size:13px; height:40px; padding:0 16px;" onclick="addAnotherFile()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add another document
         </button>
+        <span style="font-size:12px; color:var(--secondary-text); margin-left:10px;">Up to 4 documents</span>
       </div>
 
       <div class="divider"></div>
@@ -1153,16 +1320,78 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           Back
         </button>
-        <span class="step-of">02 / 04</span>
-        <button class="ripple-btn" onclick="goTo(3)">
+        <span class="step-of">02 / 05</span>
+        <button class="ripple-btn" onclick="runExtractAll()">
           <span class="rip-inner">Continue</span>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ── PANEL 3: Review ── -->
+  <!-- ── PANEL 3: OCR Verification ── -->
   <div class="panel" id="panel-3">
+    <div class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+        <h2 class="card-title">Document Verification</h2>
+        <span class="confidence-pill high" id="ocrBadge"><span class="pip"></span>AI Extracted</span>
+      </div>
+      <p class="card-desc">Our AI has analysed your document. Review the extracted information carefully and approve if correct.</p>
+
+      <!-- OCR Loading state (skeleton) -->
+      <div id="ocrLoading" style="display:none;">
+        <!-- skeleton cards injected by JS -->
+      </div>
+
+      <!-- OCR Results -->
+      <div id="ocrResults">
+        <!-- cards injected by JS -->
+      </div>
+
+      <!-- Approve block -->
+      <div id="ocrApproveBlock" style="display:none; margin-top:32px;">
+        <button class="ripple-btn" id="approveBtn" onclick="approveAndContinue()" style="width:100%; justify-content:center;">
+          <span class="rip-inner">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:8px;"><polyline points="20 6 9 17 4 12"/></svg>
+            The information looks correct — Approve &amp; Continue
+          </span>
+        </button>
+        <div style="text-align:center; margin-top:16px;">
+          <button onclick="toggleReportIssue()" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--secondary-text);text-decoration:underline;font-family:'IBM Plex Sans',sans-serif;">
+            Something looks wrong? Report an issue
+          </button>
+        </div>
+
+        <!-- Report issue panel (hidden by default) -->
+        <div id="reportIssuePanel" style="display:none; margin-top:20px; padding:20px; background:var(--surface); border-radius:10px; border:1px solid var(--border);">
+          <div style="font-size:14px;font-weight:600;margin-bottom:14px;">What's incorrect?</div>
+          <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
+            <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox" value="wrong_name" class="report-check"> Wrong name</label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox" value="wrong_document_number" class="report-check"> Wrong document number</label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox" value="wrong_dates" class="report-check"> Wrong date(s)</label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox" value="wrong_address" class="report-check"> Wrong address</label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox" value="could_not_read" class="report-check"> Could not read document</label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox" value="other" class="report-check"> Other</label>
+          </div>
+          <textarea placeholder="Optional: describe the issue in more detail..." style="width:100%;height:80px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;resize:none;" id="reportNote"></textarea>
+          <div style="display:flex;gap:12px;margin-top:14px;align-items:center;">
+            <button class="btn btn-outline-ink" style="font-size:13px;height:40px;padding:0 18px;" onclick="submitReport()">Submit Report</button>
+            <button onclick="approveAndContinue()" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--secondary-text);font-family:'IBM Plex Sans',sans-serif;">Continue anyway →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-footer" style="margin-top:24px;">
+        <button class="btn btn-outline-ink" onclick="goTo(2)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Back
+        </button>
+        <span class="step-of">03 / 05</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PANEL 4: Review ── -->
+  <div class="panel" id="panel-4">
     <div class="card">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
         <h2 class="card-title">Review Extracted Data</h2>
@@ -1242,11 +1471,11 @@
       </div>
 
       <div class="form-footer">
-        <button class="btn btn-outline-ink" onclick="goTo(2)">
+        <button class="btn btn-outline-ink" onclick="goTo(3)">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           Back
         </button>
-        <span class="step-of">03 / 04</span>
+        <span class="step-of">04 / 05</span>
         <button class="ripple-btn" id="submitBtn" onclick="submitApp()">
           <span class="rip-inner">Confirm &amp; Submit</span>
         </button>
@@ -1254,8 +1483,8 @@
     </div>
   </div>
 
-  <!-- ── PANEL 4: Success ── -->
-  <div class="panel" id="panel-4">
+  <!-- ── PANEL 5: Success ── -->
+  <div class="panel" id="panel-5">
     <div class="card">
       <div class="success-wrap">
         <div class="success-ring">
@@ -1315,13 +1544,26 @@
 <script>
   let current = 1;
 
+  // ── Multi-file state ──
+  let uploadedFiles = [];     // File objects
+  let fileLabels = [];        // ["Front", "Back", "Document 3", "Document 4"]
+  const MAX_FILES = 4;
+
+  // ── OCR state ──
+  let extractedResults = [];  // [{ fields, extraction_failed }, ...]
+  let approvedResults  = [];  // same structure, set on approve
+
+  // ── Report state ──
+  let reportedIssue = null;   // { reasons: [], note: '' }
+
+  // ── Navigation ──
   function goTo(step) {
-    if (step === 3) fillReview();
+    if (step === 4) fillReview();
 
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('is-active'));
     document.getElementById('panel-' + step).classList.add('is-active');
 
-    for (let i = 1; i <= 4; i++) {
+    for (let i = 1; i <= 5; i++) {
       const si = document.getElementById('si-' + i);
       const sn = document.getElementById('sn-' + i);
       si.classList.remove('is-active', 'is-done');
@@ -1340,63 +1582,318 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  // ── Doc type selector ──
   function selectDoc(el) {
     document.querySelectorAll('.doc-type').forEach(d => d.classList.remove('is-selected'));
     el.classList.add('is-selected');
   }
 
-  function onFileChange(input) {
-    if (!input.files || !input.files[0]) return;
-    const file = input.files[0];
+  // ── File handling (multi-file) ──
+  function labelForIndex(i) {
+    if (i === 0) return 'Front';
+    if (i === 1) return 'Back';
+    return 'Document ' + (i + 1);
+  }
+
+  function addFilesToList(files) {
+    for (const file of files) {
+      if (uploadedFiles.length >= MAX_FILES) break;
+      uploadedFiles.push(file);
+      fileLabels.push(labelForIndex(uploadedFiles.length - 1));
+      renderFileListItem(uploadedFiles.length - 1, file);
+    }
+    updateUploadUI();
+  }
+
+  function renderFileListItem(idx, file) {
+    const list = document.getElementById('fileList');
     const reader = new FileReader();
     reader.onload = e => {
-      document.getElementById('fileThumb').src = e.target.result;
-      document.getElementById('fileName').textContent = file.name;
-      document.getElementById('fileSize').textContent = (file.size / 1048576).toFixed(2) + ' MB';
-      document.getElementById('filePreview').classList.add('is-visible');
-
-      const area = document.getElementById('reviewDocArea');
-      area.style.padding = '0';
-      area.style.border = 'none';
-      area.innerHTML = '<img src="' + e.target.result + '" style="width:100%; max-height:240px; object-fit:contain; border-radius:8px;">';
-
-      const ep = document.getElementById('ex-photo');
-      ep.className = 'confidence-pill high';
-      ep.innerHTML = '<span class="pip"></span>Verified';
+      const item = document.createElement('div');
+      item.className = 'file-list-item';
+      item.id = 'file-item-' + idx;
+      item.innerHTML = `
+        <img class="file-list-thumb" src="${e.target.result}" alt="">
+        <div class="file-list-meta">
+          <div class="file-list-name">${file.name}</div>
+          <div class="file-list-size">${(file.size / 1048576).toFixed(2)} MB</div>
+        </div>
+        <span class="file-list-label">${fileLabels[idx]}</span>
+        <button class="file-list-rm" onclick="removeFile(${idx})" title="Remove">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>`;
+      list.appendChild(item);
     };
     reader.readAsDataURL(file);
   }
 
-  function clearFile() {
-    document.getElementById('fileInput').value = '';
-    document.getElementById('filePreview').classList.remove('is-visible');
-    const area = document.getElementById('reviewDocArea');
-    area.style.padding = '';
-    area.style.border = '';
-    area.innerHTML = '<div style="text-align:center; color:var(--secondary-text);"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#C0C0C0" stroke-width="1" style="margin:0 auto 10px; display:block;"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><div style="font-size:13px;">No document uploaded</div></div>';
-    const ep = document.getElementById('ex-photo');
-    ep.className = 'confidence-pill medium';
-    ep.innerHTML = '<span class="pip"></span>Pending';
+  function removeFile(idx) {
+    uploadedFiles.splice(idx, 1);
+    fileLabels.splice(idx, 1);
+    // Re-render entire list
+    const list = document.getElementById('fileList');
+    list.innerHTML = '';
+    uploadedFiles.forEach((f, i) => {
+      fileLabels[i] = labelForIndex(i);
+      renderFileListItem(i, f);
+    });
+    updateUploadUI();
   }
 
+  function updateUploadUI() {
+    const hasFiles = uploadedFiles.length > 0;
+    const maxed    = uploadedFiles.length >= MAX_FILES;
+    document.getElementById('uploadZone').style.display  = hasFiles ? 'none' : '';
+    document.getElementById('fileList').style.display    = hasFiles ? '' : 'none';
+    document.getElementById('addMoreWrap').style.display = (hasFiles && !maxed) ? '' : 'none';
+    const addBtn = document.querySelector('#addMoreWrap .btn');
+    if (addBtn) addBtn.disabled = maxed;
+  }
+
+  function addAnotherFile() {
+    // create a temp file input and trigger it
+    const tmp = document.createElement('input');
+    tmp.type = 'file';
+    tmp.accept = 'image/*';
+    tmp.onchange = () => { if (tmp.files.length) addFilesToList(tmp.files); };
+    tmp.click();
+  }
+
+  // Called by the main upload zone input
+  function onFileChange(input) {
+    if (!input.files || !input.files.length) return;
+    addFilesToList(input.files);
+    input.value = ''; // reset so same file can be picked again if removed
+  }
+
+  // ── OCR extraction ──
+  async function runExtractAll() {
+    if (uploadedFiles.length === 0) {
+      alert('Please upload at least one document image.');
+      return;
+    }
+
+    // Navigate to panel 3 immediately, show loading skeletons
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('is-active'));
+    document.getElementById('panel-3').classList.add('is-active');
+    for (let i = 1; i <= 5; i++) {
+      const si = document.getElementById('si-' + i);
+      const sn = document.getElementById('sn-' + i);
+      si.classList.remove('is-active','is-done');
+      if (i < 3) { si.classList.add('is-done'); sn.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>'; }
+      else if (i===3) { si.classList.add('is-active'); sn.textContent=i; }
+      else sn.textContent=i;
+    }
+    current = 3;
+    window.scrollTo({ top:0, behavior:'smooth' });
+
+    // Show loading skeletons
+    const loading = document.getElementById('ocrLoading');
+    const results = document.getElementById('ocrResults');
+    const approveBlock = document.getElementById('ocrApproveBlock');
+    loading.style.display = '';
+    results.innerHTML = '';
+    approveBlock.style.display = 'none';
+
+    loading.innerHTML = uploadedFiles.map((_, i) => `
+      <div class="skeleton-card">
+        <div class="skeleton skeleton-header"></div>
+        <div class="skeleton-body">
+          <div class="skeleton skeleton-field"></div>
+          <div class="skeleton skeleton-field"></div>
+          <div class="skeleton skeleton-field"></div>
+          <div class="skeleton skeleton-field"></div>
+        </div>
+      </div>`).join('');
+
+    // Fire all OCR calls in parallel
+    extractedResults = await Promise.all(uploadedFiles.map(f => extractOne(f)));
+
+    loading.style.display = 'none';
+    loading.innerHTML = '';
+
+    // Render result cards
+    results.innerHTML = '';
+    extractedResults.forEach((res, i) => {
+      results.innerHTML += buildOcrCard(res, i);
+    });
+
+    approveBlock.style.display = '';
+
+    // Init ripple on approve button
+    initRipple(document.getElementById('approveBtn'));
+  }
+
+  async function extractOne(file) {
+    const fd = new FormData();
+    fd.append('file', file);
+    try {
+      const resp = await fetch(`${BACKEND_URL}/api/v1/extract`, { method:'POST', body:fd });
+      if (!resp.ok) return { fields:{}, extraction_failed:true };
+      return await resp.json();
+    } catch {
+      return { fields:{}, extraction_failed:true };
+    }
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return null;
+    // Try to format YYYY-MM-DD nicely
+    const m = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (m) {
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return `${parseInt(m[3])} ${months[parseInt(m[2])-1]} ${m[1]}`;
+    }
+    return dateStr;
+  }
+
+  function buildOcrCard(res, idx) {
+    const label = fileLabels[idx] || ('Document ' + (idx+1));
+
+    if (res.extraction_failed) {
+      return `
+        <div class="ocr-empty-card">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="${'#D97706'}" stroke-width="1.5" style="margin:0 auto 12px;display:block;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div class="ocr-empty-title">⚠ ${label} — Unable to read</div>
+          <div class="ocr-empty-desc">We could not extract information from this image.</div>
+          <ul class="ocr-empty-tips">
+            <li>Ensure the document is fully visible and flat</li>
+            <li>Use good lighting — avoid glare or shadows</li>
+            <li>Image should be sharp and in focus</li>
+            <li>All four edges of the document must be in frame</li>
+          </ul>
+          <button class="btn btn-outline-ink" style="font-size:13px;height:38px;padding:0 16px;margin:0 auto;display:flex;" onclick="replaceFile(${idx})">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.4 16.8A5 5 0 0 0 18 7h-1.3A8 8 0 1 0 4 15.3"/></svg>
+            Replace with a clearer image
+          </button>
+        </div>`;
+    }
+
+    const f = res.fields;
+
+    // Build field groups — only show non-null fields
+    const identityFields = [
+      { key:'full_name',    label:'Full Name'    },
+      { key:'first_name',   label:'First Name'   },
+      { key:'last_name',    label:'Last Name'    },
+      { key:'alias',        label:'Alias'        },
+      { key:'date_of_birth',label:'Date of Birth'},
+      { key:'nationality',  label:'Nationality'  },
+    ].filter(({key}) => f[key] != null);
+
+    const docFields = [
+      { key:'document_number', label:'Document No.'},
+      { key:'date_of_issue',   label:'Date of Issue'},
+      { key:'date_of_expiry',  label:'Date of Expiry'},
+    ].filter(({key}) => f[key] != null);
+
+    const addrFields = [
+      { key:'full_address', label:'Full Address'},
+    ].filter(({key}) => f[key] != null);
+
+    const renderGroup = (fields, single) => {
+      if (!fields.length) return '';
+      return `<div class="ocr-fields-grid ${single?'single':''}">
+        ${fields.map(({key,label}) => {
+          let val = f[key];
+          if (['date_of_birth','date_of_issue','date_of_expiry'].includes(key)) val = formatDate(val) || val;
+          return `<div class="ocr-field">
+            <div class="ocr-field-label">${label}</div>
+            <div class="ocr-field-value">${val}</div>
+          </div>`;
+        }).join('')}
+      </div>`;
+    };
+
+    let html = `<div class="ocr-doc-card">
+      <div class="ocr-doc-header">
+        <span class="ocr-doc-label">📄 ${label}</span>
+        <span class="confidence-pill high" style="font-size:11px;"><span class="pip"></span>AI Extracted</span>
+      </div>
+      <div class="ocr-doc-body">`;
+
+    if (identityFields.length) {
+      html += `<div class="ocr-section-label">Identity</div>${renderGroup(identityFields, false)}`;
+    }
+    if (docFields.length) {
+      html += `<div class="ocr-section-label">Document</div>${renderGroup(docFields, false)}`;
+    }
+    if (addrFields.length) {
+      html += `<div class="ocr-section-label">Address</div>${renderGroup(addrFields, true)}`;
+    }
+
+    html += `</div></div>`;
+    return html;
+  }
+
+  function replaceFile(idx) {
+    const tmp = document.createElement('input');
+    tmp.type = 'file';
+    tmp.accept = 'image/*';
+    tmp.onchange = async () => {
+      if (!tmp.files.length) return;
+      uploadedFiles[idx] = tmp.files[0];
+      // Re-run extract for just this one
+      const loading = document.getElementById('ocrLoading');
+      const results = document.getElementById('ocrResults');
+      const approveBlock = document.getElementById('ocrApproveBlock');
+      loading.style.display = '';
+      loading.innerHTML = '<div class="skeleton-card"><div class="skeleton skeleton-header"></div><div class="skeleton-body"><div class="skeleton skeleton-field"></div><div class="skeleton skeleton-field"></div></div></div>';
+      results.innerHTML = '';
+      approveBlock.style.display = 'none';
+      const res = await extractOne(uploadedFiles[idx]);
+      extractedResults[idx] = res;
+      loading.style.display = 'none';
+      loading.innerHTML = '';
+      results.innerHTML = extractedResults.map((r,i) => buildOcrCard(r,i)).join('');
+      approveBlock.style.display = '';
+    };
+    tmp.click();
+  }
+
+  // ── Report issue ──
+  function toggleReportIssue() {
+    const panel = document.getElementById('reportIssuePanel');
+    panel.style.display = panel.style.display === 'none' ? '' : 'none';
+  }
+
+  function submitReport() {
+    const reasons = [...document.querySelectorAll('.report-check:checked')].map(c => c.value);
+    const note    = document.getElementById('reportNote').value.trim();
+    reportedIssue = { reasons, note };
+    document.getElementById('reportIssuePanel').style.display = 'none';
+    // Show confirmation
+    const issueBtn = document.querySelector('#ocrApproveBlock [onclick="toggleReportIssue()"]');
+    if (issueBtn) issueBtn.textContent = '✓ Issue reported — you can still continue';
+  }
+
+  // ── Approve & continue ──
+  function approveAndContinue() {
+    approvedResults = extractedResults.map(r => ({ fields: r.fields || {}, extraction_failed: r.extraction_failed }));
+    goTo(4);
+  }
+
+  // ── Review fill (Step 4) ──
   function fillReview() {
     const fn = document.getElementById('f-firstname').value.trim();
     const ln = document.getElementById('f-lastname').value.trim();
-    document.getElementById('rv-name').textContent   = (fn || ln) ? (fn + ' ' + ln).trim() : '—';
-    document.getElementById('rv-dob').textContent    = document.getElementById('f-dob').value || '—';
-    document.getElementById('rv-gender').textContent = document.getElementById('f-gender').value || '—';
+    document.getElementById('rv-name').textContent       = (fn || ln) ? (fn + ' ' + ln).trim() : '—';
+    document.getElementById('rv-dob').textContent        = document.getElementById('f-dob').value || '—';
+    document.getElementById('rv-gender').textContent     = document.getElementById('f-gender').value || '—';
     document.getElementById('rv-nationality').textContent = document.getElementById('f-nationality').value || '—';
-    document.getElementById('rv-id').textContent     = document.getElementById('f-idnum').value || '—';
-    document.getElementById('rv-email').textContent  = document.getElementById('f-email').value || '—';
-    document.getElementById('rv-phone').textContent  = document.getElementById('f-phone').value || '—';
+    document.getElementById('rv-id').textContent         = document.getElementById('f-idnum').value || '—';
+    document.getElementById('rv-email').textContent      = document.getElementById('f-email').value || '—';
+    document.getElementById('rv-phone').textContent      = document.getElementById('f-phone').value || '—';
     const addr   = document.getElementById('f-address').value.trim();
     const city   = document.getElementById('f-city').value.trim();
     const postal = document.getElementById('f-postal').value.trim();
     document.getElementById('rv-address').textContent = [addr, city, postal].filter(Boolean).join(', ') || '—';
   }
 
+  // ── Backend URL ──
   const BACKEND_URL = 'https://cognifydocumentprocesser-production.up.railway.app';
 
+  // ── Submit app (Step 4 → Step 5) ──
   async function submitApp() {
     const btn = document.getElementById('submitBtn');
     btn.disabled = true;
@@ -1435,20 +1932,19 @@
       }
 
       const data = await res.json();
-      const ref = data.reference_number;
+      const ref  = data.reference_number;
       document.getElementById('refNum').textContent = ref;
 
-      const fileInput = document.getElementById('fileInput');
-      if (fileInput.files.length > 0) {
-        const formData = new FormData();
-        formData.append('file', fileInput.files[0]);
-        await fetch(`${BACKEND_URL}/api/v1/upload/${ref}`, {
-          method: 'POST',
-          body: formData,
-        }).catch(() => {});
+      // Upload each file sequentially with approved_fields
+      for (let i = 0; i < uploadedFiles.length; i++) {
+        const fd = new FormData();
+        fd.append('file', uploadedFiles[i]);
+        const fields = approvedResults[i]?.fields ?? {};
+        fd.append('approved_fields', JSON.stringify(fields));
+        await fetch(`${BACKEND_URL}/api/v1/upload/${ref}`, { method:'POST', body:fd }).catch(() => {});
       }
 
-      goTo(4);
+      goTo(5);
     } catch (err) {
       alert('Network error — please check your connection and try again.');
       console.error(err);
@@ -1457,67 +1953,77 @@
     }
   }
 
+  // ── Reset ──
   function reset() {
+    uploadedFiles = [];
+    fileLabels    = [];
+    extractedResults = [];
+    approvedResults  = [];
+    reportedIssue    = null;
+    document.getElementById('fileList').innerHTML = '';
+    document.getElementById('fileList').style.display = 'none';
+    document.getElementById('ocrResults').innerHTML = '';
+    document.getElementById('ocrApproveBlock').style.display = 'none';
+    document.getElementById('uploadZone').style.display = '';
+    document.getElementById('addMoreWrap').style.display = 'none';
     document.querySelectorAll('#panel-1 input, #panel-1 select, #panel-2 input, #panel-2 select').forEach(el => {
       if (el.type !== 'file') el.value = '';
     });
-    clearFile();
     goTo(1);
   }
 
-  // ── Ripple buttons ──
-  document.querySelectorAll('.ripple-btn').forEach(btn => {
-    let circle = null;
-    let hovered = false;
-
+  // ── Ripple helper ──
+  function initRipple(btn) {
+    if (!btn || btn._rippleInited) return;
+    btn._rippleInited = true;
+    let circle = null, hovered = false;
     btn.addEventListener('mouseenter', e => {
       if (hovered) return;
       hovered = true;
       btn.classList.add('is-hovered');
       if (circle) { circle.remove(); circle = null; }
-
       const rect = btn.getBoundingClientRect();
       const size = Math.max(rect.width, rect.height) * 2.6;
       circle = document.createElement('span');
       circle.className = 'rip-circle';
-      circle.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX - rect.left}px;top:${e.clientY - rect.top}px`;
+      circle.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left}px;top:${e.clientY-rect.top}px`;
       btn.appendChild(circle);
       requestAnimationFrame(() => requestAnimationFrame(() => circle && circle.classList.add('is-open')));
     });
-
     btn.addEventListener('mousemove', e => {
       if (!hovered || !circle) return;
       const rect = btn.getBoundingClientRect();
-      circle.style.left = (e.clientX - rect.left) + 'px';
-      circle.style.top  = (e.clientY - rect.top)  + 'px';
+      circle.style.left = (e.clientX-rect.left) + 'px';
+      circle.style.top  = (e.clientY-rect.top)  + 'px';
     });
-
     btn.addEventListener('mouseleave', e => {
       if (!hovered) return;
       hovered = false;
       btn.classList.remove('is-hovered');
       if (!circle) return;
       const rect = btn.getBoundingClientRect();
-      circle.style.left = (e.clientX - rect.left) + 'px';
-      circle.style.top  = (e.clientY - rect.top)  + 'px';
+      circle.style.left = (e.clientX-rect.left) + 'px';
+      circle.style.top  = (e.clientY-rect.top)  + 'px';
       circle.classList.remove('is-open');
       circle.classList.add('is-closed');
       const dying = circle;
-      dying.addEventListener('transitionend', () => dying.remove(), { once: true });
+      dying.addEventListener('transitionend', () => dying.remove(), {once:true});
       circle = null;
     });
-  });
+  }
 
-  // Drag-over state on upload zone
+  // ── Init ripple for all static ripple-btns ──
+  document.querySelectorAll('.ripple-btn').forEach(initRipple);
+
+  // ── Drag-over state on upload zone ──
   const zone = document.getElementById('uploadZone');
   zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('is-dragging'); });
   zone.addEventListener('dragleave', () => zone.classList.remove('is-dragging'));
   zone.addEventListener('drop', e => {
     e.preventDefault();
     zone.classList.remove('is-dragging');
-    const fi = document.getElementById('fileInput');
-    fi.files = e.dataTransfer.files;
-    onFileChange(fi);
+    const dt = e.dataTransfer;
+    if (dt.files.length) addFilesToList(dt.files);
   });
 </script>
 

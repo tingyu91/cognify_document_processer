@@ -4,7 +4,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from app.config import settings
-from app.routes import submit, upload, status, admin
+from app.routes import submit, upload, status, admin, extract
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -28,6 +28,7 @@ app.add_middleware(
 
 app.include_router(submit.router)
 app.include_router(upload.router)
+app.include_router(extract.router)
 app.include_router(status.router)
 app.include_router(admin.router)
 
