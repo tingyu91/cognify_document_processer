@@ -1122,7 +1122,7 @@
     </div>
     <div class="step-item" id="si-2">
       <div class="step-num" id="sn-2">2</div>
-      <span class="step-label-text">Document Upload</span>
+      <span class="step-label-text">Upload Document</span>
     </div>
     <div class="step-item" id="si-3">
       <div class="step-num" id="sn-3">3</div>
@@ -1961,6 +1961,7 @@
     approvedResults  = [];
     reportedIssue    = null;
     document.getElementById('fileList').innerHTML = '';
+    document.getElementById('fileList').style.display = 'none';
     document.getElementById('ocrResults').innerHTML = '';
     document.getElementById('ocrApproveBlock').style.display = 'none';
     document.getElementById('uploadZone').style.display = '';
