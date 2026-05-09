@@ -2,6 +2,9 @@ from fastapi import APIRouter, HTTPException, UploadFile, File, status
 from pydantic import BaseModel
 from app.services import ocr
 from app.services.storage import validate_file
+from app.logger import get_logger
+
+logger = get_logger(__name__)
 
 router = APIRouter(prefix="/api/v1", tags=["extract"])
 
@@ -28,7 +31,8 @@ async def extract_document(
 
     try:
         extracted = ocr.extract_fields(data, mime_type)
-    except Exception as e:
+    except Exception:
+        logger.exception("ocr_extract_endpoint_failed", extra={"mime_type": mime_type})
         raise HTTPException(status_code=500, detail="OCR processing failed")
 
     extraction_failed = not any(v is not None for v in extracted.values()) if extracted else True

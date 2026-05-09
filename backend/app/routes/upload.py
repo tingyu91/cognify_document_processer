@@ -7,6 +7,9 @@ from sqlalchemy import select
 from app.database import get_db
 from app.models.submission import Document, DocumentInfo, Submission
 from app.services import storage, ocr
+from app.logger import get_logger
+
+logger = get_logger(__name__)
 
 router = APIRouter(prefix="/api/v1", tags=["upload"])
 
@@ -75,7 +78,7 @@ async def upload_document(
             await db.refresh(doc_info)
             document_info_id = str(doc_info.id)
         except (json.JSONDecodeError, Exception):
-            pass  # If saving info fails, don't fail the whole upload
+            logger.exception("doc_info_save_failed", extra={"document_id": str(doc.id)})
 
     # Run OCR only if approved_fields not provided (avoid double processing)
     extracted = {}
@@ -83,6 +86,6 @@ async def upload_document(
         try:
             extracted = ocr.extract_fields(data, mime_type)
         except Exception:
-            pass
+            logger.exception("ocr_extract_failed", extra={"document_id": str(doc.id), "mime_type": mime_type})
 
     return UploadResponse(document_id=str(doc.id), ocr_fields=extracted, document_info_id=document_info_id)

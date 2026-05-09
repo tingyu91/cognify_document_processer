@@ -1,53 +1,119 @@
-# CLAUDE.md — Frontend Website Rules
+# CLAUDE.md — KYC Document Parser
 
-## Always Do First
-- **Invoke the `frontend-design` skill** before writing any frontend code, every session, no exceptions.
+## Get Shit Done (GSD) — Execution Mode
 
-## Reference Images
-- If a reference image is provided: match layout, spacing, typography, and color exactly. Swap in placeholder content (images via `https://placehold.co/`, generic copy). Do not improve or add to the design.
-- If no reference image: design from scratch with high craft (see guardrails below).
-- Screenshot your output, compare against reference, fix mismatches, re-screenshot. Do at least 2 comparison rounds. Stop only when no visible differences remain or user says so.
+For **implementation**: use Edit / Write / Read / Bash / Glob / Grep directly. Do NOT spawn Superpowers subagents during execution — it is far too slow.
 
-## Local Server
-- **Always serve on localhost** — never screenshot a `file:///` URL.
-- Start the dev server: `node serve.mjs` (serves the project root at `http://localhost:3000`)
-- `serve.mjs` lives in the project root. Start it in the background before taking any screenshots.
-- If the server is already running, do not start a second instance.
+For **planning**: Superpowers (`superpowers:brainstorming`, `superpowers:writing-plans`) is fine and encouraged.
 
-## Screenshot Workflow
-- Puppeteer is installed at `C:/Users/nateh/AppData/Local/Temp/puppeteer-test/`. Chrome cache is at `C:/Users/nateh/.cache/puppeteer/`.
-- **Always screenshot from localhost:** `node screenshot.mjs http://localhost:3000`
-- Screenshots are saved automatically to `./temporary screenshots/screenshot-N.png` (auto-incremented, never overwritten).
-- Optional label suffix: `node screenshot.mjs http://localhost:3000 label` → saves as `screenshot-N-label.png`
-- `screenshot.mjs` lives in the project root. Use it as-is.
-- After screenshotting, read the PNG from `temporary screenshots/` with the Read tool — Claude can see and analyze the image directly.
-- When comparing, be specific: "heading is 32px but reference shows ~24px", "card gap is 16px but should be 24px"
-- Check: spacing/padding, font size/weight/line-height, colors (exact hex), alignment, border-radius, shadows, image sizing
+Rule: one tool call → one change. Read a file, edit it, move on.
 
-## Output Defaults
-- Single `index.html` file, all styles inline, unless user says otherwise
-- Tailwind CSS via CDN: `<script src="https://cdn.tailwindcss.com"></script>`
-- Placeholder images: `https://placehold.co/WIDTHxHEIGHT`
-- Mobile-first responsive
+---
 
-## Brand Assets
-- Always check the `brand_assets/` folder before designing. It may contain logos, color guides, style guides, or images.
-- If assets exist there, use them. Do not use placeholders where real assets are available.
-- If a logo is present, use it. If a color palette is defined, use those exact values — do not invent brand colors.
+## Recommended Skills
 
-## Anti-Generic Guardrails
-- **Colors:** Never use default Tailwind palette (indigo-500, blue-600, etc.). Pick a custom brand color and derive from it.
-- **Shadows:** Never use flat `shadow-md`. Use layered, color-tinted shadows with low opacity.
-- **Typography:** Never use the same font for headings and body. Pair a display/serif with a clean sans. Apply tight tracking (`-0.03em`) on large headings, generous line-height (`1.7`) on body.
-- **Gradients:** Layer multiple radial gradients. Add grain/texture via SVG noise filter for depth.
-- **Animations:** Only animate `transform` and `opacity`. Never `transition-all`. Use spring-style easing.
-- **Interactive states:** Every clickable element needs hover, focus-visible, and active states. No exceptions.
-- **Images:** Add a gradient overlay (`bg-gradient-to-t from-black/60`) and a color treatment layer with `mix-blend-multiply`.
-- **Spacing:** Use intentional, consistent spacing tokens — not random Tailwind steps.
-- **Depth:** Surfaces should have a layering system (base → elevated → floating), not all sit at the same z-plane.
+| Skill | When to use |
+|-------|-------------|
+| `claude-api` | Modifying `ocr.py`, `extract.py`, or any Anthropic SDK code |
+| `security-review` | Before any PR touching crypto, auth, or PII handling |
+| `simplify` | After large implementations to trim bloat |
+| `superpowers:brainstorming` | Planning new features (NOT during execution) |
+| `superpowers:writing-plans` | Writing implementation plans (NOT during execution) |
+| `frontend-design` | Before writing any new frontend UI |
 
-## Hard Rules
-- Do not add sections, features, or content not in the reference
+---
+
+## Backend Architecture
+
+```
+backend/
+├── app/
+│   ├── main.py          # FastAPI app, CORS, request logging middleware
+│   ├── config.py        # Settings (env vars)
+│   ├── database.py      # SQLAlchemy async engine
+│   ├── logger.py        # Logging setup — import get_logger(__name__) everywhere
+│   ├── models/
+│   │   └── submission.py  # Submission, Document, DocumentInfo, AuditLog
+│   ├── routes/
+│   │   ├── submit.py    # POST /api/v1/submit — create submission
+│   │   ├── upload.py    # POST /api/v1/upload/{ref} — upload doc + persist DocumentInfo
+│   │   ├── extract.py   # POST /api/v1/extract — stateless OCR (no DB write)
+│   │   ├── status.py    # GET /api/v1/status/{ref}
+│   │   └── admin.py     # Admin review endpoints
+│   └── services/
+│       ├── ocr.py       # Anthropic Claude Haiku OCR — loads prompt from agents/
+│       ├── storage.py   # Cloudflare R2 upload
+│       ├── crypto.py    # Field-level encryption for PII
+│       └── email.py     # Submission confirmation email
+├── agents/
+│   └── identity_extractor.agent.md  # OCR agent definition (YAML frontmatter + system prompt)
+└── alembic/versions/    # Database migrations
+```
+
+**Database:** PostgreSQL (Supabase) via SQLAlchemy async  
+**Migrations:** Alembic — run `alembic upgrade head` from `backend/`  
+**Logging:** `backend/app/logger.py` — call `get_logger(__name__)` in every module. Dev = human-readable stdout; prod = JSON stdout.
+
+---
+
+## Agent Files
+
+- Location: `backend/agents/`
+- Format: YAML frontmatter (agent name, version, model, max_tokens) + body = system prompt verbatim
+- `ocr.py` loads the agent file at import time via `_load_agent()`
+- To update the OCR prompt: edit `backend/agents/identity_extractor.agent.md` and redeploy
+- Future agents follow the same pattern: `identity_verifier.agent.md`, `address_checker.agent.md`, etc.
+
+---
+
+## Sample Images
+
+- `sample/` at project root — use for manual OCR testing
+- Test OCR locally:
+  ```bash
+  curl -X POST http://localhost:8000/api/v1/extract \
+    -F "file=@sample/nric_front.png" | python -m json.tool
+  ```
+- Expected: `extraction_failed: false`, `fields` contains at least `document_number` and `full_name`
+- Check backend logs for `ocr_response` line showing token counts and latency
+
+---
+
+## Frontend
+
+**File:** `frontend/index.html` — single-file, all styles inline.
+
+**Wizard flow (4 steps):**
+```
+Step 1: Personal Details → Step 2: Upload & Verify → Step 3: Review → Step 4: Done
+```
+
+Step 2 is combined Upload + OCR: user uploads files, clicks "Scan Documents", OCR results appear inline below the file list (no page navigation). Approve → go to Review.
+
+**Stack:** Tailwind CSS via CDN, vanilla JS, no build step.
+
+**Dev server:** `node serve.mjs` → `http://localhost:3000`
+
+### Screenshot Workflow
+- Always screenshot from localhost (never `file:///`)
+- `node screenshot.mjs http://localhost:3000` → saves to `temporary screenshots/screenshot-N.png`
+- Read the PNG with the Read tool and compare pixel-precisely
+- Do at least 2 comparison rounds before declaring done
+
+### Brand Assets
+- Check `brand_assets/` before designing — use real logos/colors if present
+- Never invent brand colors; derive from what's in `brand_assets/`
+
+### Anti-Generic Guardrails
+- **Colors:** Never use default Tailwind palette (indigo-500, blue-600, etc.)
+- **Shadows:** Layered, color-tinted — never flat `shadow-md`
+- **Typography:** Different fonts for headings vs body. Tight tracking on large headings (`-0.03em`), generous line-height on body (`1.7`)
+- **Animations:** Only `transform` and `opacity`. Never `transition-all`
+- **Interactive states:** Every clickable element needs hover, focus-visible, and active states
+- **Depth:** Base → elevated → floating layer system
+
+### Hard Rules
+- Do not add features not in the reference
 - Do not "improve" a reference design — match it
 - Do not stop after one screenshot pass
 - Do not use `transition-all`

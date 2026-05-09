@@ -1,76 +1,138 @@
 import base64
+import io
 import json
+import re
+import time
+from pathlib import Path
+
 import anthropic
 from app.config import settings
+from app.logger import get_logger
+
+logger = get_logger(__name__)
+
+_AGENT_FILE = Path(__file__).parent.parent.parent / "agents" / "identity_extractor.agent.md"
 
 _client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
 
-_SYSTEM_PROMPT = """You are a KYC document OCR system that handles documents in English, Simplified Chinese, and Traditional Chinese.
 
-Return ONLY a JSON object with these exact keys (use null for fields not found):
-{
-  "full_name": "string or null",
-  "first_name": "string or null",
-  "last_name": "string or null",
-  "alias": "string or null",
-  "document_number": "string or null",
-  "date_of_issue": "string or null",
-  "date_of_expiry": "string or null",
-  "date_of_birth": "string or null",
-  "nationality": "string or null",
-  "full_address": "string or null"
-}
+def _load_agent(path: Path) -> tuple[str, str, int]:
+    text = path.read_text(encoding="utf-8")
+    parts = re.split(r"^---\s*$", text, maxsplit=2, flags=re.MULTILINE)
+    if len(parts) < 3:
+        raise ValueError(f"Agent file missing YAML frontmatter: {path}")
+    fm = parts[1]
+    model = re.search(r"^model:\s*(\S+)", fm, re.MULTILINE).group(1)
+    max_tokens = int(re.search(r"^max_tokens:\s*(\d+)", fm, re.MULTILINE).group(1))
+    return parts[2].strip(), model, max_tokens
 
-Rules:
-- Return only the JSON object, no explanation or markdown
-- Preserve Chinese characters in field values — do NOT transliterate unless the document itself provides romanized text
-- For documents with both Chinese and English names (e.g. HK ID, Chinese passport), combine as: "中文名 / ENGLISH NAME"
-- full_name is the complete name as it appears on the document; first_name and last_name are the component parts if identifiable
-- alias is any "also known as" or 别名 field on the document
-- document_number is any ID/license/passport/NRIC number that identifies this document (身份证号码, 护照号, etc.)
-- Convert all date formats to YYYY-MM-DD (handle DD/MM/YYYY, MM/DD/YYYY, Chinese 年月日 formats like 2000年1月1日)
-- nationality should be in English (convert 中国 → Chinese, 新加坡 → Singaporean, etc.)
-- full_address should preserve the original language of the address
-- Preserve exact formatting of document numbers (spacing, dashes, letters)
-- If a field is not visible or not present on this document, return null — do not guess
-- Recognized document types: Singapore NRIC (front/back), Singapore Passport, Singapore Driver's License, Mainland China 居民身份证, Hong Kong 香港身份證, Macau ID, Chinese Passport (中国护照)"""
+
+_SYSTEM_PROMPT, _MODEL, _MAX_TOKENS = _load_agent(_AGENT_FILE)
+
+# Anthropic internally scales images to ~1568px on the long side before counting tokens.
+# Pre-resizing to this limit saves upload bandwidth without any quality loss.
+# Going lower (e.g. 1200px) saves ~30% of image tokens while keeping text legible.
+_MAX_LONG_SIDE = 1568
+
+
+def _resize_for_ocr(image_data: bytes, mime_type: str) -> bytes:
+    try:
+        from PIL import Image
+    except ImportError:
+        return image_data
+
+    img = Image.open(io.BytesIO(image_data))
+    w, h = img.size
+    long_side = max(w, h)
+    if long_side <= _MAX_LONG_SIDE:
+        return image_data
+
+    scale = _MAX_LONG_SIDE / long_side
+    new_w, new_h = round(w * scale), round(h * scale)
+    img = img.resize((new_w, new_h), Image.LANCZOS)
+
+    fmt = "JPEG" if mime_type == "image/jpeg" else "PNG"
+    buf = io.BytesIO()
+    if fmt == "JPEG":
+        img.save(buf, format=fmt, quality=92, optimize=True)
+    else:
+        img.save(buf, format=fmt, optimize=True)
+    resized = buf.getvalue()
+
+    logger.debug(
+        "ocr_image_resized",
+        extra={
+            "original_px": f"{w}x{h}",
+            "resized_px": f"{new_w}x{new_h}",
+            "original_bytes": len(image_data),
+            "resized_bytes": len(resized),
+        },
+    )
+    return resized
 
 
 def extract_fields(image_data: bytes, mime_type: str) -> dict:
-    """Send document image to Claude Haiku and return extracted fields as a dict."""
-    b64 = base64.standard_b64encode(image_data).decode()
+    """Send document image to Claude and return extracted KYC fields."""
+    image_data = _resize_for_ocr(image_data, mime_type)
+    image_size = len(image_data)
+    logger.debug("ocr_request", extra={"mime_type": mime_type, "bytes": image_size, "model": _MODEL})
 
-    response = _client.messages.create(
-        model="claude-haiku-4-5",
-        max_tokens=768,
-        system=[
-            {
-                "type": "text",
-                "text": _SYSTEM_PROMPT,
-                "cache_control": {"type": "ephemeral"},  # Prompt caching — ~90% cost reduction
-            }
-        ],
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "image",
-                        "source": {
-                            "type": "base64",
-                            "media_type": mime_type,
-                            "data": b64,
+    b64 = base64.standard_b64encode(image_data).decode()
+    t0 = time.monotonic()
+
+    try:
+        response = _client.messages.create(
+            model=_MODEL,
+            max_tokens=_MAX_TOKENS,
+            system=[
+                {
+                    "type": "text",
+                    "text": _SYSTEM_PROMPT,
+                    "cache_control": {"type": "ephemeral"},
+                }
+            ],
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image",
+                            "source": {
+                                "type": "base64",
+                                "media_type": mime_type,
+                                "data": b64,
+                            },
                         },
-                    },
-                    {"type": "text", "text": "Extract the identity fields from this document."},
-                ],
-            }
-        ],
+                        {"type": "text", "text": "Extract the identity fields from this document."},
+                    ],
+                }
+            ],
+        )
+    except Exception:
+        logger.exception("ocr_api_error", extra={"mime_type": mime_type, "bytes": image_size})
+        raise
+
+    latency_ms = round((time.monotonic() - t0) * 1000)
+    usage = response.usage
+    logger.info(
+        "ocr_response",
+        extra={
+            "model": response.model,
+            "input_tokens": usage.input_tokens,
+            "output_tokens": usage.output_tokens,
+            "cache_read_tokens": getattr(usage, "cache_read_input_tokens", 0),
+            "latency_ms": latency_ms,
+        },
     )
 
     raw = response.content[0].text.strip()
+    # Strip markdown code fences the model occasionally adds despite instructions
+    if raw.startswith("```"):
+        raw = re.sub(r"^```(?:json)?\s*", "", raw)
+        raw = re.sub(r"\s*```\s*$", "", raw)
+        raw = raw.strip()
     try:
         return json.loads(raw)
     except json.JSONDecodeError:
-        # Return empty dict if model output is malformed — form data still saved from user input
+        logger.warning("ocr_json_parse_failed", extra={"raw": raw[:300]})
         return {}

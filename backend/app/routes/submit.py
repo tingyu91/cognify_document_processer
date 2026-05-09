@@ -9,6 +9,9 @@ from app.database import get_db
 from app.models.submission import AuditLog, Submission
 from app.services import crypto
 from app.services.email import send_submission_confirmation
+from app.logger import get_logger
+
+logger = get_logger(__name__)
 
 router = APIRouter(prefix="/api/v1", tags=["submit"])
 
@@ -92,6 +95,6 @@ async def submit_kyc(payload: SubmitRequest, request: Request, db: AsyncSession 
             full_name=f"{payload.first_name} {payload.last_name}",
         )
     except Exception:
-        pass
+        logger.exception("email_send_failed", extra={"reference": ref, "email": payload.email})
 
     return SubmitResponse(reference_number=ref, message="Submission received. You will be notified by email.")

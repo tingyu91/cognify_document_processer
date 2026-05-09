@@ -12,3 +12,6 @@ backend/**/*.pyc
 .claude/
 .env
 .env.*
+
+#sample
+sample

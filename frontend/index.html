@@ -1122,18 +1122,14 @@
     </div>
     <div class="step-item" id="si-2">
       <div class="step-num" id="sn-2">2</div>
-      <span class="step-label-text">Upload Document</span>
+      <span class="step-label-text">Upload &amp; Verify</span>
     </div>
     <div class="step-item" id="si-3">
       <div class="step-num" id="sn-3">3</div>
-      <span class="step-label-text">Verify Document</span>
+      <span class="step-label-text">Review</span>
     </div>
     <div class="step-item" id="si-4">
       <div class="step-num" id="sn-4">4</div>
-      <span class="step-label-text">Review</span>
-    </div>
-    <div class="step-item" id="si-5">
-      <div class="step-num" id="sn-5">5</div>
       <span class="step-label-text">Done</span>
     </div>
   </div>
@@ -1233,7 +1229,7 @@
       </div>
 
       <div class="form-footer">
-        <span class="step-of">01 / 05</span>
+        <span class="step-of">01 / 04</span>
         <button class="ripple-btn" style="margin-left:auto;" onclick="goTo(2)">
           <span class="rip-inner">Continue</span>
         </button>
@@ -1315,83 +1311,64 @@
         </div>
       </div>
 
-      <div class="form-footer">
+      <!-- ── Inline OCR Section (shown after Scan is clicked) ── -->
+      <div id="ocrScanSection" style="display:none;">
+        <div class="divider"></div>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+          <h3 style="font-size:20px; font-weight:700; letter-spacing:-0.02em; font-family:'Plus Jakarta Sans',sans-serif;">Document Verification</h3>
+          <span class="confidence-pill high" id="ocrBadge" style="display:none;"><span class="pip"></span>AI Extracted</span>
+        </div>
+        <p style="font-size:14px; color:var(--secondary-text); line-height:1.65; margin-bottom:24px;">Our AI has analysed your document. Review the extracted information carefully and approve if correct.</p>
+
+        <div id="ocrLoading" style="display:none;"></div>
+        <div id="ocrResults"></div>
+
+        <div id="ocrApproveBlock" style="display:none; margin-top:32px;">
+          <button class="ripple-btn" id="approveBtn" onclick="approveAndContinue()" style="width:100%; justify-content:center;">
+            <span class="rip-inner">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:8px;"><polyline points="20 6 9 17 4 12"/></svg>
+              The information looks correct — Approve &amp; Continue
+            </span>
+          </button>
+          <div style="text-align:center; margin-top:16px;">
+            <button onclick="toggleReportIssue()" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--secondary-text);text-decoration:underline;font-family:'IBM Plex Sans',sans-serif;">
+              Something looks wrong? Report an issue
+            </button>
+          </div>
+          <div id="reportIssuePanel" style="display:none; margin-top:20px; padding:20px; background:var(--surface); border-radius:10px; border:1px solid var(--border);">
+            <div style="font-size:14px;font-weight:600;margin-bottom:14px;">What's incorrect?</div>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
+              <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox" value="wrong_name" class="report-check"> Wrong name</label>
+              <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox" value="wrong_document_number" class="report-check"> Wrong document number</label>
+              <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox" value="wrong_dates" class="report-check"> Wrong date(s)</label>
+              <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox" value="wrong_address" class="report-check"> Wrong address</label>
+              <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox" value="could_not_read" class="report-check"> Could not read document</label>
+              <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox" value="other" class="report-check"> Other</label>
+            </div>
+            <textarea placeholder="Optional: describe the issue in more detail..." style="width:100%;height:80px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;resize:none;" id="reportNote"></textarea>
+            <div style="display:flex;gap:12px;margin-top:14px;align-items:center;">
+              <button class="btn btn-outline-ink" style="font-size:13px;height:40px;padding:0 18px;" onclick="submitReport()">Submit Report</button>
+              <button onclick="approveAndContinue()" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--secondary-text);font-family:'IBM Plex Sans',sans-serif;">Continue anyway →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-footer" id="upload-footer">
         <button class="btn btn-outline-ink" onclick="goTo(1)">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           Back
         </button>
-        <span class="step-of">02 / 05</span>
-        <button class="ripple-btn" onclick="runExtractAll()">
-          <span class="rip-inner">Continue</span>
+        <span class="step-of">02 / 04</span>
+        <button class="ripple-btn" id="scanBtn" onclick="runExtractAll()">
+          <span class="rip-inner">Scan Documents</span>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ── PANEL 3: OCR Verification ── -->
+  <!-- ── PANEL 3: Review ── -->
   <div class="panel" id="panel-3">
-    <div class="card">
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-        <h2 class="card-title">Document Verification</h2>
-        <span class="confidence-pill high" id="ocrBadge"><span class="pip"></span>AI Extracted</span>
-      </div>
-      <p class="card-desc">Our AI has analysed your document. Review the extracted information carefully and approve if correct.</p>
-
-      <!-- OCR Loading state (skeleton) -->
-      <div id="ocrLoading" style="display:none;">
-        <!-- skeleton cards injected by JS -->
-      </div>
-
-      <!-- OCR Results -->
-      <div id="ocrResults">
-        <!-- cards injected by JS -->
-      </div>
-
-      <!-- Approve block -->
-      <div id="ocrApproveBlock" style="display:none; margin-top:32px;">
-        <button class="ripple-btn" id="approveBtn" onclick="approveAndContinue()" style="width:100%; justify-content:center;">
-          <span class="rip-inner">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:8px;"><polyline points="20 6 9 17 4 12"/></svg>
-            The information looks correct — Approve &amp; Continue
-          </span>
-        </button>
-        <div style="text-align:center; margin-top:16px;">
-          <button onclick="toggleReportIssue()" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--secondary-text);text-decoration:underline;font-family:'IBM Plex Sans',sans-serif;">
-            Something looks wrong? Report an issue
-          </button>
-        </div>
-
-        <!-- Report issue panel (hidden by default) -->
-        <div id="reportIssuePanel" style="display:none; margin-top:20px; padding:20px; background:var(--surface); border-radius:10px; border:1px solid var(--border);">
-          <div style="font-size:14px;font-weight:600;margin-bottom:14px;">What's incorrect?</div>
-          <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
-            <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox" value="wrong_name" class="report-check"> Wrong name</label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox" value="wrong_document_number" class="report-check"> Wrong document number</label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox" value="wrong_dates" class="report-check"> Wrong date(s)</label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox" value="wrong_address" class="report-check"> Wrong address</label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox" value="could_not_read" class="report-check"> Could not read document</label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;"><input type="checkbox" value="other" class="report-check"> Other</label>
-          </div>
-          <textarea placeholder="Optional: describe the issue in more detail..." style="width:100%;height:80px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;resize:none;" id="reportNote"></textarea>
-          <div style="display:flex;gap:12px;margin-top:14px;align-items:center;">
-            <button class="btn btn-outline-ink" style="font-size:13px;height:40px;padding:0 18px;" onclick="submitReport()">Submit Report</button>
-            <button onclick="approveAndContinue()" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--secondary-text);font-family:'IBM Plex Sans',sans-serif;">Continue anyway →</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-footer" style="margin-top:24px;">
-        <button class="btn btn-outline-ink" onclick="goTo(2)">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-          Back
-        </button>
-        <span class="step-of">03 / 05</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── PANEL 4: Review ── -->
-  <div class="panel" id="panel-4">
     <div class="card">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
         <h2 class="card-title">Review Extracted Data</h2>
@@ -1471,11 +1448,11 @@
       </div>
 
       <div class="form-footer">
-        <button class="btn btn-outline-ink" onclick="goTo(3)">
+        <button class="btn btn-outline-ink" onclick="goTo(2)">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           Back
         </button>
-        <span class="step-of">04 / 05</span>
+        <span class="step-of">03 / 04</span>
         <button class="ripple-btn" id="submitBtn" onclick="submitApp()">
           <span class="rip-inner">Confirm &amp; Submit</span>
         </button>
@@ -1483,8 +1460,8 @@
     </div>
   </div>
 
-  <!-- ── PANEL 5: Success ── -->
-  <div class="panel" id="panel-5">
+  <!-- ── PANEL 4: Success ── -->
+  <div class="panel" id="panel-4">
     <div class="card">
       <div class="success-wrap">
         <div class="success-ring">
@@ -1558,12 +1535,12 @@
 
   // ── Navigation ──
   function goTo(step) {
-    if (step === 4) fillReview();
+    if (step === 3) fillReview();
 
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('is-active'));
     document.getElementById('panel-' + step).classList.add('is-active');
 
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= 4; i++) {
       const si = document.getElementById('si-' + i);
       const sn = document.getElementById('sn-' + i);
       si.classList.remove('is-active', 'is-done');
@@ -1673,29 +1650,27 @@
       return;
     }
 
-    // Navigate to panel 3 immediately, show loading skeletons
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('is-active'));
-    document.getElementById('panel-3').classList.add('is-active');
-    for (let i = 1; i <= 5; i++) {
-      const si = document.getElementById('si-' + i);
-      const sn = document.getElementById('sn-' + i);
-      si.classList.remove('is-active','is-done');
-      if (i < 3) { si.classList.add('is-done'); sn.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>'; }
-      else if (i===3) { si.classList.add('is-active'); sn.textContent=i; }
-      else sn.textContent=i;
-    }
-    current = 3;
-    window.scrollTo({ top:0, behavior:'smooth' });
+    // Show inline OCR section, hide scan button and upload footer
+    const scanBtn = document.getElementById('scanBtn');
+    scanBtn.disabled = true;
+    scanBtn.querySelector('.rip-inner').textContent = 'Scanning…';
 
-    // Show loading skeletons
-    const loading = document.getElementById('ocrLoading');
-    const results = document.getElementById('ocrResults');
+    const ocrSection  = document.getElementById('ocrScanSection');
+    const loading     = document.getElementById('ocrLoading');
+    const results     = document.getElementById('ocrResults');
     const approveBlock = document.getElementById('ocrApproveBlock');
-    loading.style.display = '';
-    results.innerHTML = '';
-    approveBlock.style.display = 'none';
+    const ocrBadge    = document.getElementById('ocrBadge');
 
-    loading.innerHTML = uploadedFiles.map((_, i) => `
+    ocrSection.style.display  = '';
+    loading.style.display     = '';
+    results.innerHTML         = '';
+    approveBlock.style.display = 'none';
+    ocrBadge.style.display    = 'none';
+
+    // Hide the upload footer while scanning
+    document.getElementById('upload-footer').style.display = 'none';
+
+    loading.innerHTML = uploadedFiles.map(() => `
       <div class="skeleton-card">
         <div class="skeleton skeleton-header"></div>
         <div class="skeleton-body">
@@ -1706,21 +1681,21 @@
         </div>
       </div>`).join('');
 
+    window.scrollTo({ top: document.getElementById('ocrScanSection').offsetTop - 120, behavior: 'smooth' });
+
     // Fire all OCR calls in parallel
     extractedResults = await Promise.all(uploadedFiles.map(f => extractOne(f)));
 
     loading.style.display = 'none';
     loading.innerHTML = '';
+    ocrBadge.style.display = '';
 
-    // Render result cards
     results.innerHTML = '';
     extractedResults.forEach((res, i) => {
       results.innerHTML += buildOcrCard(res, i);
     });
 
     approveBlock.style.display = '';
-
-    // Init ripple on approve button
     initRipple(document.getElementById('approveBtn'));
   }
 
@@ -1870,7 +1845,7 @@
   // ── Approve & continue ──
   function approveAndContinue() {
     approvedResults = extractedResults.map(r => ({ fields: r.fields || {}, extraction_failed: r.extraction_failed }));
-    goTo(4);
+    goTo(3);
   }
 
   // ── Review fill (Step 4) ──
@@ -1944,7 +1919,7 @@
         await fetch(`${BACKEND_URL}/api/v1/upload/${ref}`, { method:'POST', body:fd }).catch(() => {});
       }
 
-      goTo(5);
+      goTo(4);
     } catch (err) {
       alert('Network error — please check your connection and try again.');
       console.error(err);
@@ -1964,6 +1939,11 @@
     document.getElementById('fileList').style.display = 'none';
     document.getElementById('ocrResults').innerHTML = '';
     document.getElementById('ocrApproveBlock').style.display = 'none';
+    document.getElementById('ocrScanSection').style.display = 'none';
+    document.getElementById('upload-footer').style.display = '';
+    const scanBtn = document.getElementById('scanBtn');
+    scanBtn.disabled = false;
+    scanBtn.querySelector('.rip-inner').textContent = 'Scan Documents';
     document.getElementById('uploadZone').style.display = '';
     document.getElementById('addMoreWrap').style.display = 'none';
     document.querySelectorAll('#panel-1 input, #panel-1 select, #panel-2 input, #panel-2 select').forEach(el => {
